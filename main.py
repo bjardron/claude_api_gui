@@ -1,4 +1,4 @@
-from brains.functionality.gui import ClaudeGUI
+from gui import ClaudeGUI
 
 if __name__ == "__main__":
     # Initialize and run the GUI application

@@ -99,3 +99,5 @@ class GUILayout:
     def clear_staged_files(self):
         self.file_manager.clear_staged_files()
         self.update_staged_files_list()
+
+    

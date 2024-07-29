@@ -1,18 +1,19 @@
 import threading
 import os
 import tkinter as tk
-from tkinter import filedialog, messagebox
-from brains.functionality.file_manager import FileManager
 from dotenv import load_dotenv
-from brains.functionality.claude_api import ClaudeAPI
-from brains.functionality.gui_layout import GUILayout
-from brains.functionality.allowed_extensions import allowed_extensions  # Import allowed extensions
+from tkinter import filedialog, messagebox
+from file_manager import FileManager
+from claude_api import ClaudeAPI
+from gui_layout import GUILayout
+from allowed_extensions import allowed_extensions
 
 class ClaudeGUI(GUILayout):
     def __init__(self):
         self.file_manager = FileManager()
         self.setup_main_window()
         self.load_env()
+        self.claude_api = ClaudeAPI(self.api_key)  # Initialize ClaudeAPI with the loaded API key
         self.create_chat_window()
 
     def load_env(self):
@@ -20,17 +21,14 @@ class ClaudeGUI(GUILayout):
         self.api_key = os.getenv("ANTHROPIC_API_KEY")
         if not self.api_key:
             raise ValueError("API key not found. Please set the ANTHROPIC_API_KEY environment variable.")
-        self.claude_api = ClaudeAPI(self.api_key)
 
     def start_send_message_thread(self):
         threading.Thread(target=self.send_message, daemon=True).start()
 
     def send_message(self):
-        self.show_loading()
         context = self.conversation_text.get("1.0", tk.END).strip()
         message = self.message_entry.get("1.0", tk.END).strip()
         if not message and not self.file_manager.staged_files:
-            self.hide_loading()
             return
 
         if message:
@@ -46,7 +44,6 @@ class ClaudeGUI(GUILayout):
         try:
             max_tokens = int(self.max_tokens_var.get())
         except ValueError:
-            self.hide_loading()
             messagebox.showerror("Invalid Input", "Max Tokens must be an integer.")
             return
 
@@ -67,7 +64,6 @@ class ClaudeGUI(GUILayout):
         finally:
             self.message_entry.delete("1.0", tk.END)
             self.file_manager.clear_staged_files()
-            self.hide_loading()
 
     def start_new_chat(self):
         self.conversation_text.delete("1.0", tk.END)
