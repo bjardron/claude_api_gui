@@ -29,11 +29,12 @@ pip install -r requirements.txt
 
 ANTHROPIC_API_KEY=your_api_key
 
-Using the GUI:
+## Using the GUI:
 
 System Prompt: Enter a custom system prompt for the API.
 
 Model: Select the Claude model to use.
+
 Temperature: Set the temperature for the API responses.
 
 Max Tokens: Set the maximum number of tokens for the API responses.
@@ -47,12 +48,19 @@ Save Conversation: Click "Save Conversation" to save the chat history to a text 
 Start New Chat: Click "Start New Chat" to clear the conversation and start over.
 
 ### File Structure
+
 `main.py`: Entry point of the application.
+
 `gui.py`: Defines the GUI and its functionalities.
+
 `gui_layout`.py: Defines the layout of the GUI elements.
+
 `file_manager`.py: Manages file operations.
+
 `claude_api.py`: Handles interactions with the Claude API.
+
 `allowed_extensions.py`: Contains the list of allowed file extensions for code review.
+
 `.env`: Environment file for storing the API key.
 
 
