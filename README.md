@@ -19,6 +19,7 @@ Drag and Drop Support: Drag and drop files into the staging area for review.
 
 
 git clone https://github.com/bjardron/claude_api_gui.git
+
 cd claude_api_gui
 
 ### Install the dependencies:
