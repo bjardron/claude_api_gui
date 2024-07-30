@@ -31,7 +31,7 @@ Drag and Drop Support: Drag and drop files into the staging area for review.
 
 ```API_KEY = "YOUR_API_KEY_HERE"```
 
-Use config.py.example as reference
+Use `config.py.example` as reference
 
 ## Using the GUI:
 
