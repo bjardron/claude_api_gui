@@ -58,6 +58,11 @@ Use `config.py.example` as reference
 
 `Start New Chat`: Click "Start New Chat" to clear the conversation and start over.
 
+`Review File`: Click "Review File" to send any file to the staging area for Claude
+
+`Review Code`: Select an entire directory, it will pull any files 
+on `allowed_extensions.py`, scrape the contents and send it in a message along with a system prompt to review the entire code base.
+
 ### File Structure
 
 `main.py`: Entry point of the application.
