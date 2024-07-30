@@ -1,36 +1,35 @@
-import requests
-import logging
-
-logging.basicConfig(level=logging.DEBUG)
+import anthropic
+from config import API_KEY
 
 class ClaudeAPI:
-    def __init__(self, api_key):
-        self.api_key = api_key
-        self.base_url = "https://api.anthropic.com/v1"
+    def __init__(self):
+        self.api_key = API_KEY
+        if not self.api_key:
+            raise ValueError("API key not found. Please set the API_KEY in config.py.")
+        
+        self.client = anthropic.Anthropic(api_key=self.api_key)
 
     def send_message(self, system_prompt, model, temperature, max_tokens, message):
-        headers = {
-            "x-api-key": self.api_key,
-            "anthropic-version": "2023-06-01",
-            "content-type": "application/json",
-        }
+        if not message.strip():
+            return "Message content is empty, skipping..."
         
-        data = {
-            "messages": [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": message}
-            ],
-            "model": model,
-            "temperature": temperature,
-            "max_tokens": max_tokens
-        }
-        
-        logging.debug(f"Sending request to {self.base_url}/messages with headers {headers} and data {data}")
-        
-        response = requests.post(f"{self.base_url}/messages", headers=headers, json=data)
-        logging.debug(f"Response status code: {response.status_code}")
-        logging.debug(f"Response content: {response.content}")
-        
-        response.raise_for_status()
-        
-        return response.json()["content"][0]["text"]
+        try:
+            response = self.client.messages.create(
+                model=model,
+                max_tokens=max_tokens,
+                temperature=temperature,
+                system=system_prompt,
+                messages=[
+                    {"role": "user", "content": message}
+                ]
+            )
+            return self.format_response(response)
+        except anthropic.APIStatusError as e:
+            print(f"API Status Error: {e.status_code} - {e.message}")
+            return f"Error: {e.status_code} - {e.message}"
+        except Exception as e:
+            print(f"Error occurred: {e}")
+            return f"Error: {e}"
+
+    def format_response(self, response):
+        return response.content[0].text

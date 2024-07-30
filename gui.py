@@ -1,38 +1,36 @@
 import threading
-import os
 import tkinter as tk
-from dotenv import load_dotenv
+import os
 from tkinter import filedialog, messagebox
 from file_manager import FileManager
 from claude_api import ClaudeAPI
 from gui_layout import GUILayout
 from allowed_extensions import allowed_extensions
 
+
 class ClaudeGUI(GUILayout):
     def __init__(self):
+        super().__init__()  # Call the parent class's __init__ method
         self.file_manager = FileManager()
         self.setup_main_window()
-        self.load_env()
-        self.claude_api = ClaudeAPI(self.api_key)  # Initialize ClaudeAPI with the loaded API key
+        self.claude_api = ClaudeAPI()
         self.create_chat_window()
-
-    def load_env(self):
-        load_dotenv()
-        self.api_key = os.getenv("ANTHROPIC_API_KEY")
-        if not self.api_key:
-            raise ValueError("API key not found. Please set the ANTHROPIC_API_KEY environment variable.")
 
     def start_send_message_thread(self):
         threading.Thread(target=self.send_message, daemon=True).start()
 
     def send_message(self):
-        context = self.conversation_text.get("1.0", tk.END).strip()
+        self.show_loading()
+        
         message = self.message_entry.get("1.0", tk.END).strip()
         if not message and not self.file_manager.staged_files:
+            self.hide_loading()
             return
 
-        if message:
-            context += f"\n\nUser message:\n{message}"
+        # Process staged files if any
+        if self.file_manager.staged_files:
+            file_contents = self.process_files()
+            message = f"{file_contents}\n\nUser message:\n{message}"
 
         model_mapping = {
             "Claude Sonnet 3.5": "claude-3-5-sonnet-20240620",
@@ -44,26 +42,37 @@ class ClaudeGUI(GUILayout):
         try:
             max_tokens = int(self.max_tokens_var.get())
         except ValueError:
+            self.hide_loading()
             messagebox.showerror("Invalid Input", "Max Tokens must be an integer.")
             return
 
-        params = {
-            "system_prompt": self.system_prompt_entry.get(),
-            "model": model,
-            "temperature": float(self.temperature_var.get()),
-            "max_tokens": max_tokens,
-            "message": context
-        }
-        
+        system_prompt = self.system_prompt_entry.get()
+
         try:
-            response = self.claude_api.send_message(**params)
+            response = self.claude_api.send_message(
+                model=model,
+                temperature=float(self.temperature_var.get()),
+                max_tokens=max_tokens,
+                message=message,
+                system_prompt=system_prompt
+            )
+            
             self.update_conversation(f"You: {message}\n")
             self.update_conversation(f"Claude: {response}\n", bold=True)
         except Exception as e:
-            messagebox.showerror("API Error", f"An error occurred: {e}")
-        finally:
-            self.message_entry.delete("1.0", tk.END)
-            self.file_manager.clear_staged_files()
+            self.update_conversation(f"Error: {str(e)}\n")
+
+        self.message_entry.delete("1.0", tk.END)
+        self.clear_staged_files()
+        self.hide_loading()
+
+    def show_loading(self):
+        self.loading_frame.place(relx=0.5, rely=0.5, anchor="center")
+        self.progress_bar.start()
+
+    def hide_loading(self):
+        self.progress_bar.stop()
+        self.loading_frame.place_forget()
 
     def start_new_chat(self):
         self.conversation_text.delete("1.0", tk.END)
@@ -118,7 +127,7 @@ class ClaudeGUI(GUILayout):
         batch_size = 5
         total_batches = (len(self.file_manager.staged_files) + batch_size - 1) // batch_size
         for i in range(total_batches):
-            batch = self.file_manager.staged_files[i*batch_size:(i+1)*batch_size]
+            batch = self.file_manager.staged_files[i * batch_size:(i + 1) * batch_size]
             self.send_code_files_to_claude(batch)
         self.send_message_to_claude("Begin the comprehensive code review based on all provided files.")
 
