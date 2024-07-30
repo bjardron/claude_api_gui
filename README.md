@@ -25,25 +25,32 @@ cd claude_api_gui
 
 pip install -r requirements.txt
 
-### Create .env in project root
+### Create config.py in project root
 
-ANTHROPIC_API_KEY=your_api_key
+API_KEY = "YOU_API_KEY_HERE"
 
 ## Using the GUI:
 
 System Prompt: Enter a custom system prompt for the API.
 
+
 Model: Select the Claude model to use.
+
 
 Temperature: Set the temperature for the API responses.
 
+
 Max Tokens: Set the maximum number of tokens for the API responses.
+
 
 Message: Enter your message in the message entry area and click "Send".
 
+
 Staged Files: Click "Review File" to stage individual files or "Code Review" to stage entire directories.
 
+
 Save Conversation: Click "Save Conversation" to save the chat history to a text file.
+
 
 Start New Chat: Click "Start New Chat" to clear the conversation and start over.
 
@@ -61,7 +68,7 @@ Start New Chat: Click "Start New Chat" to clear the conversation and start over.
 
 `allowed_extensions.py`: Contains the list of allowed file extensions for code review.
 
-`.env`: Environment file for storing the API key.
+`config.py`: config file for storing the API key.
 
 
 
