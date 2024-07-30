@@ -18,42 +18,45 @@ Drag and Drop Support: Drag and drop files into the staging area for review.
 ### Clone the repository:
 
 
-git clone https://github.com/bjardron/claude_api_gui.git
+```git clone https://github.com/bjardron/claude_api_gui.git ```
 
-cd claude_api_gui
+```cd claude_api_gui```
+                
 
 ### Install the dependencies:
 
-pip install -r requirements.txt
+```pip install -r requirements.txt```
 
 ### Create config.py in project root
 
-API_KEY = "YOU_API_KEY_HERE"
+```API_KEY = "YOUR_API_KEY_HERE"```
+
+Use config.py.example as reference
 
 ## Using the GUI:
 
-System Prompt: Enter a custom system prompt for the API.
+`System Prompt`: Enter a custom system prompt for the API.
 
 
-Model: Select the Claude model to use.
+`Model`: Select the Claude model to use.
 
 
-Temperature: Set the temperature for the API responses.
+`Temperature`: Set the temperature for the API responses.
 
 
-Max Tokens: Set the maximum number of tokens for the API responses.
+`Max Tokens`: Set the maximum number of tokens for the API responses.
 
 
-Message: Enter your message in the message entry area and click "Send".
+`Message`: Enter your message in the message entry area and click "Send".
 
 
-Staged Files: Click "Review File" to stage individual files or "Code Review" to stage entire directories.
+`Staged Files`: Click "Review File" to stage individual files or "Code Review" to stage entire directories.
 
 
-Save Conversation: Click "Save Conversation" to save the chat history to a text file.
+`Save Conversation`: Click "Save Conversation" to save the chat history to a text file.
 
 
-Start New Chat: Click "Start New Chat" to clear the conversation and start over.
+`Start New Chat`: Click "Start New Chat" to clear the conversation and start over.
 
 ### File Structure
 
@@ -61,9 +64,9 @@ Start New Chat: Click "Start New Chat" to clear the conversation and start over.
 
 `gui.py`: Defines the GUI and its functionalities.
 
-`gui_layout`.py: Defines the layout of the GUI elements.
+`gui_layout.py`: Defines the layout of the GUI elements.
 
-`file_manager`.py: Manages file operations.
+`file_manager.py`: Manages file operations.
 
 `claude_api.py`: Handles interactions with the Claude API.
 
