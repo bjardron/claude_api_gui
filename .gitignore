@@ -132,3 +132,4 @@ celerybeat.pid
 
 # Custom
 .env
+config.py
