@@ -7,7 +7,6 @@ from claude_api import ClaudeAPI
 from gui_layout import GUILayout
 from allowed_extensions import allowed_extensions
 
-
 class ClaudeGUI(GUILayout):
     def __init__(self):
         super().__init__()  # Call the parent class's __init__ method
@@ -65,6 +64,19 @@ class ClaudeGUI(GUILayout):
         self.message_entry.delete("1.0", tk.END)
         self.clear_staged_files()
         self.hide_loading()
+        self.file_manager.staged_files.clear()  # Clear staged files after sending
+
+    def process_files(self):
+        file_contents = ""
+        for file_path in self.file_manager.staged_files:
+            try:
+                with open(file_path, 'r', encoding='utf-8', errors='ignore') as file:
+                    file_contents += f"File: {file_path}\n"
+                    file_contents += file.read()
+                    file_contents += "\n\n"
+            except Exception as e:
+                file_contents += f"Error reading file {file_path}: {str(e)}\n\n"
+        return file_contents
 
     def show_loading(self):
         self.loading_frame.place(relx=0.5, rely=0.5, anchor="center")
@@ -119,56 +131,38 @@ class ClaudeGUI(GUILayout):
             self.file_manager.staged_files = self.file_manager.filter_code_files(directory, allowed_extensions)
             self.update_staged_files_list()
             self.update_conversation(f"Code files staged from directory: {directory}\n")
+            
+            # Prepare the code review message
+            code_review_message = self.prepare_code_review_message()
+            
+            # Set the prepared message in the message entry box
+            self.message_entry.delete("1.0", tk.END)
+            self.message_entry.insert(tk.END, code_review_message)
+            
+            # Update the system prompt
             self.system_prompt_entry.delete(0, tk.END)
-            self.system_prompt_entry.insert(0, "You are an AI that handles batch processing of code files. Process the provided code files in batches and maintain context. Respond to the user message based on the provided conversation context.")
-            self.process_code_files_in_batches()
+            self.system_prompt_entry.insert(0, "You are an AI that performs comprehensive code reviews. Analyze the provided code files, maintaining context across the entire codebase. Provide insights on code quality, potential improvements, and any issues you identify.")
 
-    def process_code_files_in_batches(self):
-        batch_size = 5
-        total_batches = (len(self.file_manager.staged_files) + batch_size - 1) // batch_size
-        for i in range(total_batches):
-            batch = self.file_manager.staged_files[i * batch_size:(i + 1) * batch_size]
-            self.send_code_files_to_claude(batch)
-        self.send_message_to_claude("Begin the comprehensive code review based on all provided files.")
-
-    def send_code_files_to_claude(self, files):
-        system_prompt = self.system_prompt_entry.get()
+    def prepare_code_review_message(self):
         message = "Code files for review:\n\n"
-        for file_path in files:
+        for file_path in self.file_manager.staged_files:
             try:
                 with open(file_path, 'r', encoding='utf-8', errors='ignore') as file:
-                    message += f"File: {file_path}\n"
+                    relative_path = os.path.relpath(file_path, start=os.path.commonprefix(self.file_manager.staged_files))
+                    message += f"File: {relative_path}\n```\n"
                     message += file.read()
-                    message += "\n\n"
+                    message += "\n```\n\n"
             except Exception as e:
-                self.update_conversation(f"Error reading file {file_path}: {e}\n")
-        params = {
-            "system_prompt": system_prompt,
-            "model": self.model_var.get(),
-            "temperature": float(self.temperature_var.get()),
-            "max_tokens": int(self.max_tokens_var.get()),
-            "message": message
-        }
-        try:
-            response = self.claude_api.send_message(**params)
-            self.update_conversation(f"Batch sent: {', '.join(files)}\n")
-            self.update_conversation(f"Claude: {response}\n", bold=True)
-        except Exception as e:
-            self.update_conversation(f"Error sending code files to Claude: {e}\n")
-
-    def send_message_to_claude(self, message):
-        params = {
-            "system_prompt": self.system_prompt_entry.get(),
-            "model": self.model_var.get(),
-            "temperature": float(self.temperature_var.get()),
-            "max_tokens": int(self.max_tokens_var.get()),
-            "message": message
-        }
-        try:
-            response = self.claude_api.send_message(**params)
-            self.update_conversation(f"Claude: {response}\n", bold=True)
-        except Exception as e:
-            self.update_conversation(f"Error sending message to Claude: {e}\n")
+                message += f"Error reading file {file_path}: {str(e)}\n\n"
+        
+        message += "Please provide a comprehensive code review for the above files. Consider the following aspects:\n"
+        message += "1. Code quality and readability\n"
+        message += "2. Potential bugs or security issues\n"
+        message += "3. Adherence to best practices and design patterns\n"
+        message += "4. Suggestions for improvements or optimizations\n"
+        message += "5. Any other relevant observations or recommendations\n"
+        
+        return message
 
     def drop(self, event):
         file_path = event.data.strip('{}')
@@ -180,6 +174,10 @@ class ClaudeGUI(GUILayout):
         for item in self.file_manager.staged_files:
             file_name = os.path.basename(item)
             self.staged_files_list.insert(tk.END, file_name)
+
+    def clear_staged_files(self):
+        self.file_manager.staged_files.clear()
+        self.update_staged_files_list()
 
     def run(self):
         self.root.mainloop()
