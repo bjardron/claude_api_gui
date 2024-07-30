@@ -53,6 +53,7 @@ class GUILayout:
     def create_conversation_display(self):
         self.conversation_text = scrolledtext.ScrolledText(self.chat_frame, wrap=tk.WORD, bg="#404040", fg="#FFFFFF", font=("Arial", 10), insertbackground="#FFFFFF")
         self.conversation_text.grid(row=4, column=0, columnspan=3, padx=10, pady=10, sticky="nsew")
+        self.conversation_text.tag_configure('bold', font=("Arial", 10, "bold"))
 
     def create_message_entry(self):
         self.message_entry = scrolledtext.ScrolledText(self.chat_frame, wrap=tk.WORD, height=3, width=50, bg="#404040", fg="#FFFFFF", font=("Arial", 10), insertbackground="#FFFFFF")
@@ -63,6 +64,14 @@ class GUILayout:
         tk.Button(send_frame, text="Start New Chat", command=self.start_new_chat, bg="#3A3A3A", fg="#FFFFFF", font=("Arial", 10), padx=10, pady=5).pack(side=tk.TOP, anchor=tk.W, pady=(5, 0))
         tk.Label(send_frame, text="Staged Files:", bg="#2E2E2E", fg="#FFFFFF", font=("Arial", 10)).pack(side=tk.TOP, anchor=tk.W, pady=(10, 0))
         self.create_file_staging_area(send_frame)
+    
+    def update_conversation(self, text, is_claude=False):
+        if is_claude:
+            self.conversation_text.insert(tk.END, "\n", 'normal')  # Add a newline before Claude's message
+            self.conversation_text.insert(tk.END, text, 'bold')
+        else:
+            self.conversation_text.insert(tk.END, text, 'normal')
+        self.conversation_text.see(tk.END)
 
     def create_buttons(self):
         button_frame = tk.Frame(self.chat_frame, bg="#2E2E2E")

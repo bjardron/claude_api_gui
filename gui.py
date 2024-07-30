@@ -56,10 +56,10 @@ class ClaudeGUI(GUILayout):
                 system_prompt=system_prompt
             )
             
-            self.update_conversation(f"You: {message}\n")
-            self.update_conversation(f"Claude: {response}\n", bold=True)
+            self.update_conversation(f"User: {message}\n", is_claude=False)
+            self.update_conversation(f"Claude: {response}\n", is_claude=True)
         except Exception as e:
-            self.update_conversation(f"Error: {str(e)}\n")
+            self.update_conversation(f"Error: {str(e)}\n", is_claude=False)
 
         self.message_entry.delete("1.0", tk.END)
         self.clear_staged_files()
@@ -92,11 +92,12 @@ class ClaudeGUI(GUILayout):
         self.message_entry.delete("1.0", tk.END)
         self.update_staged_files_list()
 
-    def update_conversation(self, text, bold=False):
-        if bold:
+    def update_conversation(self, text, is_claude=False):
+        if is_claude:
+            self.conversation_text.insert(tk.END, "\n", 'normal')  # Add a newline before Claude's message
             self.conversation_text.insert(tk.END, text, 'bold')
         else:
-            self.conversation_text.insert(tk.END, text)
+            self.conversation_text.insert(tk.END, text, 'normal')
         self.conversation_text.see(tk.END)
 
     def save_conversation(self):
