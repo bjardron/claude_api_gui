@@ -3,15 +3,15 @@
 This project is a GUI application for interacting with the Claude API. It allows users to send messages, review files, and perform code reviews. The application is built using Python and the Tkinter library for the GUI.
 
 ## Features
-Send Messages: Send messages to the Claude API with customizable system prompts, models, temperature settings, and max tokens.
+`Send Messages`: Send messages to the Claude API with customizable system prompts, models, temperature settings, and max tokens.
 
-Review Files: Stage individual files for review by the Claude API.
+`Review Files`: Stage individual files for review by the Claude API.
 
-Code Review: Stage entire directories of code files for review by the Claude API.
+`Code Review`: Stage entire directories of code files for review by the Claude API.
 
-Save Conversations: Save the conversation history to a text file.
+`Save Conversations`: Save the conversation history to a text file.
 
-Drag and Drop Support: Drag and drop files into the staging area for review.
+`Drag and Drop Support`: Drag and drop files into the staging area for review.
 
 
 ## Installation
